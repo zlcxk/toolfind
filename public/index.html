@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ToolFind</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <script>
+      if (window.location.search) document.body.dataset.mode = 'results';
+    </script>
+
+    <main class="home" id="home-view">
+      <section class="hero shell">
+        <h1 class="brand">ToolFind</h1>
+        <p class="subtitle">输入需求，直接找到最相关的在线工具。</p>
+        <form class="searchbar" data-search-form>
+          <input data-search-input type="search" autocomplete="off" placeholder="搜索：压缩图片、JSON格式化、颜色提取...">
+          <button class="button" type="submit">搜索</button>
+        </form>
+        <div class="chips" data-hot></div>
+      </section>
+      <footer class="site-footer">
+        <p>© 2026 ToolFind. All rights reserved.</p>
+        <p>本站仅提供在线工具导航与搜索，第三方工具服务由其运营方负责。</p>
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">浙ICP备2025148305号-1</a>
+      </footer>
+    </main>
+
+    <main id="results-view" class="hidden">
+      <header class="topbar">
+        <div class="topbar-inner shell">
+          <a class="logo" href="/">ToolFind</a>
+          <form class="searchbar" data-search-form>
+            <input data-search-input type="search" autocomplete="off" placeholder="搜索工具">
+            <button class="button" type="submit">搜索</button>
+          </form>
+        </div>
+      </header>
+      <section class="shell">
+        <p class="results-meta" data-meta></p>
+        <div data-results></div>
+      </section>
+      <footer class="site-footer">
+        <p>© 2026 ToolFind. All rights reserved.</p>
+        <p>本站仅提供在线工具导航与搜索，第三方工具服务由其运营方负责。</p>
+        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">浙ICP备2025148305号-1</a>
+      </footer>
+    </main>
+
+    <script>
+      if (window.location.search) {
+        document.getElementById('home-view').classList.add('hidden');
+        document.getElementById('results-view').classList.remove('hidden');
+      }
+    </script>
+    <script src="/app.js"></script>
+  </body>
+</html>

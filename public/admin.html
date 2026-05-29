@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ToolFind 管理后台</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="admin-layout">
+      <aside class="sidebar">
+        <h1>ToolFind</h1>
+        <button class="nav-button active" data-nav="dashboard">数据统计</button>
+        <button class="nav-button" data-nav="tools">工具管理</button>
+        <button class="nav-button" data-nav="categories">分类管理</button>
+        <a class="nav-button" href="/">返回前台</a>
+      </aside>
+
+      <section class="admin-main">
+        <section data-view="dashboard">
+          <h2>数据统计</h2>
+          <div class="metric-grid" data-metrics></div>
+          <div class="grid">
+            <div class="panel">
+              <h3>高频搜索词</h3>
+              <table><tbody data-hot-list></tbody></table>
+            </div>
+            <div class="panel">
+              <h3>无结果搜索词</h3>
+              <table><tbody data-empty-list></tbody></table>
+            </div>
+          </div>
+        </section>
+
+        <section data-view="tools" class="hidden">
+          <h2>工具管理</h2>
+          <form class="panel grid" data-tool-form>
+            <input class="input" name="name" maxlength="50" required placeholder="工具名称">
+            <input class="input" name="url" required placeholder="https://example.com">
+            <select class="select" name="category_id" required></select>
+            <select class="select" name="status">
+              <option value="1">上架</option>
+              <option value="0">下架</option>
+            </select>
+            <input class="input" name="weight" type="number" min="0" max="100" value="50" placeholder="权重 0-100">
+            <input class="input" name="icon_url" placeholder="图标 URL，可选">
+            <textarea class="textarea" name="description" maxlength="120" required placeholder="简短描述，最多120字"></textarea>
+            <textarea class="textarea" name="seo_keywords" placeholder="搜索关键词，用空格分隔"></textarea>
+            <input class="input" name="tags" placeholder="标签，用英文逗号分隔，如 免费,无需注册">
+            <div class="row-actions">
+              <button class="button" type="submit">保存工具</button>
+              <button class="button secondary" type="button" data-reset-tool>清空</button>
+            </div>
+          </form>
+
+          <form class="panel row-actions" data-tool-filter>
+            <input class="input" data-tool-filter-keyword placeholder="按名称搜索" style="max-width:220px">
+            <select class="select" data-tool-filter-category data-category-options style="max-width:180px"></select>
+            <select class="select" data-tool-filter-status style="max-width:140px">
+              <option value="">全部状态</option>
+              <option value="1">上架</option>
+              <option value="0">下架</option>
+            </select>
+            <button class="button" type="submit">筛选</button>
+          </form>
+
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th><th>名称</th><th>分类</th><th>状态</th><th>点击</th><th>权重</th><th>标签</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody data-tool-table></tbody>
+          </table>
+        </section>
+
+        <section data-view="categories" class="hidden">
+          <h2>分类管理</h2>
+          <form class="panel grid" data-category-form>
+            <input class="input" name="name" required placeholder="分类名称">
+            <input class="input" name="sort_order" type="number" value="0" placeholder="排序">
+            <input class="input" name="color" type="color" value="#2563eb" title="分类颜色">
+            <input class="input" name="description" placeholder="分类描述">
+            <div class="row-actions">
+              <button class="button" type="submit">保存分类</button>
+              <button class="button secondary" type="button" data-reset-category>清空</button>
+            </div>
+          </form>
+          <table>
+            <thead>
+              <tr><th>ID</th><th>名称</th><th>排序</th><th>描述</th><th>操作</th></tr>
+            </thead>
+            <tbody data-category-table></tbody>
+          </table>
+        </section>
+      </section>
+    </main>
+    <script src="/admin.js"></script>
+  </body>
+</html>

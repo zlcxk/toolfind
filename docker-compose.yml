@@ -1,0 +1,18 @@
+services:
+  toolfind:
+    build: .
+    container_name: toolfind
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      HOST: 0.0.0.0
+      DB_PATH: /app/data/toolfind.sqlite
+      ADMIN_USER: admin
+      ADMIN_PASSWORD: change-me
+    volumes:
+      - toolfind_data:/app/data
+
+volumes:
+  toolfind_data:
