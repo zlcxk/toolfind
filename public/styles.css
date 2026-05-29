@@ -51,7 +51,62 @@ a {
   font-size: clamp(36px, 8vw, 76px);
   line-height: 1;
   letter-spacing: 0;
-  color: #0f172a;
+}
+
+.wordmark {
+  position: relative;
+  display: inline-block;
+  color: transparent;
+  background:
+    linear-gradient(90deg, #2563eb, #06b6d4, #16a34a, #f59e0b, #e11d48, #7c3aed, #2563eb);
+  background-size: 320% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: wordmark-flow 9s linear infinite;
+  text-shadow: 0 18px 48px rgba(37, 99, 235, 0.18);
+}
+
+.wordmark::after {
+  content: "";
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  bottom: -8px;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(37, 99, 235, 0), #06b6d4, #22c55e, #f59e0b, rgba(225, 29, 72, 0));
+  background-size: 220% 100%;
+  animation: wordmark-glow 5s ease-in-out infinite alternate;
+  opacity: 0.8;
+}
+
+@keyframes wordmark-flow {
+  from {
+    background-position: 0% 50%;
+  }
+
+  to {
+    background-position: 320% 50%;
+  }
+}
+
+@keyframes wordmark-glow {
+  from {
+    transform: scaleX(0.72);
+    filter: blur(0);
+  }
+
+  to {
+    transform: scaleX(1);
+    filter: blur(1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wordmark,
+  .wordmark::after {
+    animation: none;
+  }
 }
 
 .subtitle {
@@ -173,6 +228,11 @@ a {
   font-weight: 800;
   font-size: 22px;
   text-decoration: none;
+}
+
+.logo.wordmark::after {
+  bottom: -5px;
+  height: 2px;
 }
 
 .results-meta {
