@@ -1,6 +1,7 @@
 let categories = [];
 let editingToolId = null;
 let editingCategoryId = null;
+const hiddenTags = new Set(['Tbox导入']);
 
 async function adminApi(path, options = {}) {
   const response = await fetch(path, {
@@ -17,7 +18,11 @@ async function adminApi(path, options = {}) {
 
 function html(value) {
   return String(value ?? '').replace(/[&<>"']/g, (char) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
   }[char]));
 }
 
@@ -37,8 +42,12 @@ async function loadStats() {
     <div class="metric">今日搜索<strong>${data.summary.today_search_count}</strong></div>
     <div class="metric">无结果搜索<strong>${data.summary.empty_search_count}</strong></div>
   `;
-  document.querySelector('[data-hot-list]').innerHTML = data.hotKeywords.map((item) => `<tr><td>${html(item.keyword)}</td><td>${item.count}</td></tr>`).join('');
-  document.querySelector('[data-empty-list]').innerHTML = data.emptyKeywords.map((item) => `<tr><td>${html(item.keyword)}</td><td>${item.count}</td></tr>`).join('');
+  document.querySelector('[data-hot-list]').innerHTML = data.hotKeywords
+    .map((item) => `<tr><td>${html(item.keyword)}</td><td>${item.count}</td></tr>`)
+    .join('');
+  document.querySelector('[data-empty-list]').innerHTML = data.emptyKeywords
+    .map((item) => `<tr><td>${html(item.keyword)}</td><td>${item.count}</td></tr>`)
+    .join('');
 }
 
 async function loadCategories() {
@@ -48,7 +57,7 @@ async function loadCategories() {
       `<option value="${item.id}">${html(item.name)}</option>`
     )).join('');
   });
-  document.querySelector('[name="category_id"]').innerHTML = categories.map((item) => (
+  document.querySelector('[name="category_id"]').innerHTML = '<option value="">自动分类</option>' + categories.map((item) => (
     `<option value="${item.id}">${html(item.name)}</option>`
   )).join('');
   document.querySelector('[data-category-table]').innerHTML = categories.map((item) => `
@@ -63,6 +72,21 @@ async function loadCategories() {
       </td>
     </tr>
   `).join('');
+}
+
+function healthLabel(item) {
+  if (item.last_health_status === 'ok') {
+    return '<span class="badge" style="background:#dcfce7;color:#166534">正常</span>';
+  }
+  if (item.last_health_status === 'down') {
+    const title = item.last_health_error ? ` title="${html(item.last_health_error)}"` : '';
+    return `<span class="badge" style="background:#fee2e2;color:#991b1b"${title}>不可访问</span>`;
+  }
+  return '<span class="badge">未检测</span>';
+}
+
+function visibleTags(tags) {
+  return (tags || []).filter((tag) => !hiddenTags.has(tag));
 }
 
 async function loadTools() {
@@ -80,9 +104,10 @@ async function loadTools() {
       <td>${html(item.name)}</td>
       <td>${html(item.category_name)}</td>
       <td>${item.status ? '上架' : '下架'}</td>
+      <td>${healthLabel(item)}</td>
       <td>${item.click_count}</td>
       <td>${item.weight}</td>
-      <td>${(item.tags || []).map((tag) => `<span class="badge">${html(tag)}</span>`).join(' ')}</td>
+      <td>${visibleTags(item.tags).map((tag) => `<span class="badge">${html(tag)}</span>`).join(' ')}</td>
       <td class="row-actions">
         <button class="button secondary" data-edit-tool="${item.id}">编辑</button>
         <button class="button secondary" data-toggle-tool="${item.id}" data-status="${item.status ? 0 : 1}">${item.status ? '下架' : '上架'}</button>
@@ -130,6 +155,50 @@ function categoryFormPayload() {
   };
 }
 
+async function fetchIcon() {
+  const form = document.querySelector('[data-tool-form]');
+  const url = form.elements.url.value.trim();
+  if (!url) {
+    alert('请先填写工具 URL');
+    return;
+  }
+  const button = document.querySelector('[data-fetch-icon]');
+  button.disabled = true;
+  button.textContent = '获取中...';
+  try {
+    const data = await adminApi('/api/v1/admin/fetch-icon', {
+      method: 'POST',
+      body: JSON.stringify({ url })
+    });
+    form.elements.icon_url.value = data.icon_url;
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = '自动获取图标';
+  }
+}
+
+async function runManualHealthCheck() {
+  if (!confirm('将检测所有上架工具链接，不可访问的工具会自动下架。是否继续？')) return;
+  const button = document.querySelector('[data-run-health-check]');
+  button.disabled = true;
+  button.textContent = '检测中...';
+  try {
+    const result = await adminApi('/api/v1/admin/health-check', {
+      method: 'POST',
+      body: JSON.stringify({ include_inactive: false })
+    });
+    await Promise.all([loadTools(), loadStats()]);
+    alert(`检测完成：正常 ${result.ok} 个，不可访问 ${result.down} 个`);
+  } catch (error) {
+    alert(error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = '检测链接';
+  }
+}
+
 async function boot() {
   document.querySelectorAll('[data-nav]').forEach((button) => {
     button.addEventListener('click', () => setView(button.dataset.nav));
@@ -152,6 +221,8 @@ async function boot() {
   });
 
   document.querySelector('[data-reset-tool]').addEventListener('click', resetToolForm);
+  document.querySelector('[data-fetch-icon]').addEventListener('click', fetchIcon);
+  document.querySelector('[data-run-health-check]').addEventListener('click', runManualHealthCheck);
 
   document.querySelector('[data-category-form]').addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -180,7 +251,7 @@ async function boot() {
       Object.entries(data).forEach(([key, value]) => {
         if (form.elements[key]) form.elements[key].value = Array.isArray(value) ? value.join(',') : value;
       });
-      form.elements.tags.value = (data.tags || []).join(',');
+      form.elements.tags.value = visibleTags(data.tags).join(',');
       setView('tools');
     }
     if (deleteTool && confirm('确定删除这个工具？')) {

@@ -4,6 +4,10 @@ const path = require('path');
 const express = require('express');
 const { db, syncToolTags, getToolTags } = require('./db');
 const { searchTools, getRecommendations } = require('./search');
+const { discoverFavicon } = require('./favicon');
+const { runHealthCheck, scheduleHealthCheck } = require('./health');
+const { normalizeUrl } = require('./url-utils');
+const { inferCategoryName, ensureCategory } = require('./taxonomy');
 
 const app = express();
 const requestedPort = Number(process.env.PORT || 3000);
@@ -46,10 +50,17 @@ function validateToolPayload(body) {
     errors.push('工具URL格式不正确');
   }
   if (!body.description || String(body.description).trim().length > 120) errors.push('简短描述必填，且最多 120 字');
-  if (!Number.isInteger(Number(body.category_id))) errors.push('所属分类必填');
+  if (body.category_id !== undefined && body.category_id !== '' && !Number.isInteger(Number(body.category_id))) errors.push('所属分类格式不正确');
   const weight = Number(body.weight ?? 50);
   if (weight < 0 || weight > 100) errors.push('权重必须在 0-100 之间');
   return errors;
+}
+
+function resolveCategoryId(body) {
+  if (Number.isInteger(Number(body.category_id)) && Number(body.category_id) > 0) {
+    return Number(body.category_id);
+  }
+  return ensureCategory(db, inferCategoryName(body.name, body.description, body.category_name));
 }
 
 app.get('/api/v1/search', (req, res) => {
@@ -115,6 +126,24 @@ app.get('/api/v1/admin/stats', (req, res) => {
     LIMIT 20
   `).all();
   sendOk(res, { summary, hotKeywords, emptyKeywords });
+});
+
+app.post('/api/v1/admin/fetch-icon', async (req, res) => {
+  try {
+    const iconUrl = await discoverFavicon(String(req.body.url || '').trim());
+    sendOk(res, { icon_url: iconUrl });
+  } catch (error) {
+    sendError(res, 404, error.message);
+  }
+});
+
+app.post('/api/v1/admin/health-check', async (req, res) => {
+  try {
+    const result = await runHealthCheck({ includeInactive: Boolean(req.body.include_inactive) });
+    sendOk(res, result);
+  } catch (error) {
+    sendError(res, 500, error.message);
+  }
 });
 
 app.get('/api/v1/admin/categories', (req, res) => {
@@ -204,21 +233,35 @@ app.get('/api/v1/admin/tools/:id', (req, res) => {
   sendOk(res, { ...tool, tags: getToolTags(tool.id) });
 });
 
-app.post('/api/v1/admin/tools', (req, res) => {
+app.post('/api/v1/admin/tools', async (req, res) => {
   const errors = validateToolPayload(req.body);
   if (errors.length) return sendError(res, 400, errors.join('；'));
   try {
+    let iconUrl = String(req.body.icon_url || '').trim();
+    if (!iconUrl) {
+      try {
+        iconUrl = await discoverFavicon(String(req.body.url).trim());
+      } catch {
+        iconUrl = '';
+      }
+    }
+    const normalizedUrl = normalizeUrl(req.body.url);
+    const duplicated = db.prepare('SELECT id FROM tool WHERE normalized_url = ? OR url = ? OR lower(name) = lower(?)')
+      .get(normalizedUrl, String(req.body.url).trim(), String(req.body.name).trim());
+    if (duplicated) return sendError(res, 409, '工具名称或 URL 已存在');
+    const categoryId = resolveCategoryId(req.body);
     const info = db.prepare(`
-      INSERT INTO tool (name, url, description, category_id, status, weight, icon_url, seo_keywords)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO tool (name, url, normalized_url, description, category_id, status, weight, icon_url, seo_keywords)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       String(req.body.name).trim(),
       String(req.body.url).trim(),
+      normalizedUrl,
       String(req.body.description).trim(),
-      Number(req.body.category_id),
+      categoryId,
       Number(req.body.status ?? 1),
       Number(req.body.weight ?? 50),
-      String(req.body.icon_url || '').trim(),
+      iconUrl,
       String(req.body.seo_keywords || '').trim()
     );
     syncToolTags(Number(info.lastInsertRowid), req.body.tags);
@@ -228,24 +271,38 @@ app.post('/api/v1/admin/tools', (req, res) => {
   }
 });
 
-app.put('/api/v1/admin/tools/:id', (req, res) => {
+app.put('/api/v1/admin/tools/:id', async (req, res) => {
   const id = Number(req.params.id);
   const errors = validateToolPayload(req.body);
   if (errors.length) return sendError(res, 400, errors.join('；'));
   try {
+    let iconUrl = String(req.body.icon_url || '').trim();
+    if (!iconUrl) {
+      try {
+        iconUrl = await discoverFavicon(String(req.body.url).trim());
+      } catch {
+        iconUrl = '';
+      }
+    }
+    const normalizedUrl = normalizeUrl(req.body.url);
+    const duplicated = db.prepare('SELECT id FROM tool WHERE id != ? AND (normalized_url = ? OR url = ? OR lower(name) = lower(?))')
+      .get(id, normalizedUrl, String(req.body.url).trim(), String(req.body.name).trim());
+    if (duplicated) return sendError(res, 409, '工具名称或 URL 已存在');
+    const categoryId = resolveCategoryId(req.body);
     db.prepare(`
       UPDATE tool
-      SET name = ?, url = ?, description = ?, category_id = ?, status = ?, weight = ?,
+      SET name = ?, url = ?, normalized_url = ?, description = ?, category_id = ?, status = ?, weight = ?,
           icon_url = ?, seo_keywords = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `).run(
       String(req.body.name).trim(),
       String(req.body.url).trim(),
+      normalizedUrl,
       String(req.body.description).trim(),
-      Number(req.body.category_id),
+      categoryId,
       Number(req.body.status ?? 1),
       Number(req.body.weight ?? 50),
-      String(req.body.icon_url || '').trim(),
+      iconUrl,
       String(req.body.seo_keywords || '').trim(),
       id
     );
@@ -275,6 +332,7 @@ function listenWithFallback(index = 0) {
 
   const server = app.listen(port, host, () => {
     console.log(`ToolFind is running at http://${host}:${port}`);
+    scheduleHealthCheck();
   });
 
   server.on('error', (error) => {

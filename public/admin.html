@@ -38,13 +38,16 @@
           <form class="panel grid" data-tool-form>
             <input class="input" name="name" maxlength="50" required placeholder="工具名称">
             <input class="input" name="url" required placeholder="https://example.com">
-            <select class="select" name="category_id" required></select>
+            <select class="select" name="category_id"></select>
             <select class="select" name="status">
               <option value="1">上架</option>
               <option value="0">下架</option>
             </select>
             <input class="input" name="weight" type="number" min="0" max="100" value="50" placeholder="权重 0-100">
-            <input class="input" name="icon_url" placeholder="图标 URL，可选">
+            <div class="row-actions">
+              <input class="input" name="icon_url" placeholder="图标 URL，可选">
+              <button class="button secondary" type="button" data-fetch-icon>自动获取图标</button>
+            </div>
             <textarea class="textarea" name="description" maxlength="120" required placeholder="简短描述，最多120字"></textarea>
             <textarea class="textarea" name="seo_keywords" placeholder="搜索关键词，用空格分隔"></textarea>
             <input class="input" name="tags" placeholder="标签，用英文逗号分隔，如 免费,无需注册">
@@ -63,12 +66,13 @@
               <option value="0">下架</option>
             </select>
             <button class="button" type="submit">筛选</button>
+            <button class="button secondary" type="button" data-run-health-check>检测链接</button>
           </form>
 
           <table>
             <thead>
               <tr>
-                <th>ID</th><th>名称</th><th>分类</th><th>状态</th><th>点击</th><th>权重</th><th>标签</th><th>操作</th>
+                <th>ID</th><th>名称</th><th>分类</th><th>状态</th><th>健康</th><th>点击</th><th>权重</th><th>标签</th><th>操作</th>
               </tr>
             </thead>
             <tbody data-tool-table></tbody>

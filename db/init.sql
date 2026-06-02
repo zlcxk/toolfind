@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS tool (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
   url TEXT NOT NULL UNIQUE,
+  normalized_url TEXT UNIQUE,
   description TEXT NOT NULL,
   category_id INTEGER NOT NULL,
   status INTEGER DEFAULT 1,
@@ -101,9 +102,12 @@ INSERT OR IGNORE INTO category (id, name, sort_order, color, description) VALUES
   (3, '开发工具', 30, '#d97706', '代码格式化、调试、接口和开发辅助工具'),
   (4, '设计工具', 40, '#7c3aed', '颜色、字体、图标和界面设计工具'),
   (5, 'AI工具', 50, '#0891b2', 'AI 写作、生成、总结和效率工具'),
-  (6, '其他', 99, '#4b5563', '暂未归类的实用工具'),
-  (101, '站长SEO', 70, '#16a34a', 'SEO、性能检测、域名和站点分析工具'),
-  (102, '效率工具', 60, '#be123c', '笔记、待办、协作和自动化效率工具');
+  (6, '效率工具', 60, '#be123c', '笔记、待办、协作和自动化效率工具'),
+  (7, '站长SEO', 70, '#16a34a', 'SEO、性能检测、域名和站点分析工具'),
+  (8, '影音工具', 80, '#db2777', '音乐、视频、影视、直播和字幕工具'),
+  (9, '教育学习', 90, '#0f766e', '学习、资料、课程和学术工具'),
+  (10, '系统工具', 100, '#475569', '系统维护、软件下载和安全工具'),
+  (11, '其他', 999, '#4b5563', '暂未归类的实用工具');
 
 INSERT OR IGNORE INTO tool (id, name, url, description, category_id, status, weight, icon_url, seo_keywords) VALUES
   (1, 'TinyPNG', 'https://tinypng.com', '在线压缩 PNG、JPEG 和 WebP 图片，在保持画质的同时减少图片体积。', 1, 1, 80, 'https://tinypng.com/images/apple-touch-icon.png', '图片压缩 压缩图片 png jpg webp tinypng'),
@@ -133,14 +137,14 @@ INSERT OR IGNORE INTO tool (id, name, url, description, category_id, status, wei
   (25, 'Claude', 'https://claude.ai', 'AI 对话和文档处理助手，适合长文本分析、写作和代码辅助。', 5, 1, 70, '', 'ai claude 文档分析 写作 总结 代码'),
   (26, 'Perplexity', 'https://www.perplexity.ai', '带来源引用的 AI 搜索工具，适合资料检索、调研和问题探索。', 5, 1, 68, '', 'ai搜索 perplexity 资料检索 调研 问答'),
   (27, 'DeepL', 'https://www.deepl.com/translator', '高质量在线翻译工具，适合多语言文本翻译和润色。', 5, 1, 66, '', '翻译 deepl 英文 中文 多语言 ai'),
-  (28, 'Notion', 'https://www.notion.so', '集笔记、知识库、项目管理和数据库于一体的在线协作工具。', 102, 1, 66, '', '笔记 知识库 项目管理 协作 notion'),
-  (29, 'Trello', 'https://trello.com', '看板式任务管理工具，适合个人待办、团队协作和项目流程跟踪。', 102, 1, 57, '', '看板 任务管理 todo 项目管理 trello'),
-  (30, 'Excalidraw', 'https://excalidraw.com', '手绘风格白板工具，适合画流程图、架构图、草图和头脑风暴。', 102, 1, 63, '', '白板 画图 流程图 架构图 草图 excalidraw'),
-  (31, 'PageSpeed Insights', 'https://pagespeed.web.dev', 'Google 网站性能检测工具，提供性能、可访问性和 SEO 优化建议。', 101, 1, 72, '', '网站性能 pagespeed seo lighthouse 速度检测'),
-  (32, 'Google Search Console', 'https://search.google.com/search-console', 'Google 官方站长平台，用于查看收录、搜索表现和站点问题。', 101, 1, 68, '', 'seo 收录 站长 google search console'),
-  (33, 'Ahrefs Webmaster Tools', 'https://ahrefs.com/webmaster-tools', '站点 SEO 健康检查和外链分析工具，适合监控网站可见性。', 101, 1, 61, '', 'seo 外链 站点分析 ahrefs 关键词'),
-  (34, 'WHOIS Lookup', 'https://who.is', '查询域名注册信息、DNS、到期时间和基础网络信息。', 101, 1, 56, '', 'whois 域名查询 dns 域名到期 站长'),
-  (35, 'VirusTotal', 'https://www.virustotal.com', '检测 URL、文件和域名安全风险，适合排查可疑链接。', 6, 1, 62, '', '安全检测 url 文件 病毒 virustotal');
+  (28, 'Notion', 'https://www.notion.so', '集笔记、知识库、项目管理和数据库于一体的在线协作工具。', 6, 1, 66, '', '笔记 知识库 项目管理 协作 notion'),
+  (29, 'Trello', 'https://trello.com', '看板式任务管理工具，适合个人待办、团队协作和项目流程跟踪。', 6, 1, 57, '', '看板 任务管理 todo 项目管理 trello'),
+  (30, 'Excalidraw', 'https://excalidraw.com', '手绘风格白板工具，适合画流程图、架构图、草图和头脑风暴。', 6, 1, 63, '', '白板 画图 流程图 架构图 草图 excalidraw'),
+  (31, 'PageSpeed Insights', 'https://pagespeed.web.dev', 'Google 网站性能检测工具，提供性能、可访问性和 SEO 优化建议。', 7, 1, 72, '', '网站性能 pagespeed seo lighthouse 速度检测'),
+  (32, 'Google Search Console', 'https://search.google.com/search-console', 'Google 官方站长平台，用于查看收录、搜索表现和站点问题。', 7, 1, 68, '', 'seo 收录 站长 google search console'),
+  (33, 'Ahrefs Webmaster Tools', 'https://ahrefs.com/webmaster-tools', '站点 SEO 健康检查和外链分析工具，适合监控网站可见性。', 7, 1, 61, '', 'seo 外链 站点分析 ahrefs 关键词'),
+  (34, 'WHOIS Lookup', 'https://who.is', '查询域名注册信息、DNS、到期时间和基础网络信息。', 7, 1, 56, '', 'whois 域名查询 dns 域名到期 站长'),
+  (35, 'VirusTotal', 'https://www.virustotal.com', '检测 URL、文件和域名安全风险，适合排查可疑链接。', 11, 1, 62, '', '安全检测 url 文件 病毒 virustotal');
 
 INSERT OR IGNORE INTO tag (id, name) VALUES
   (1, '免费'),

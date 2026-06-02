@@ -5,7 +5,12 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node src/server.js"
+    "dev": "node src/server.js",
+    "import:tboxn": "node scripts/import-tboxn.js",
+    "import:tboxn:dry": "node scripts/import-tboxn.js --dry-run",
+    "icons:fetch": "node scripts/fetch-icons.js",
+    "icons:fetch:force": "node scripts/fetch-icons.js --force",
+    "data:maintain": "node scripts/maintain-data.js --reclassify-all --compact-category-ids"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",

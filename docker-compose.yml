@@ -11,6 +11,9 @@ services:
       DB_PATH: /app/data/toolfind.sqlite
       ADMIN_USER: admin
       ADMIN_PASSWORD: change-me
+      HEALTH_CHECK_ENABLED: "true"
+      HEALTH_CHECK_INTERVAL_HOURS: 24
+      HEALTH_CHECK_ON_START: "false"
     volumes:
       - toolfind_data:/app/data
 

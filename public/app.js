@@ -45,9 +45,10 @@ function iconHtml(tool) {
 }
 
 function cardHtml(tool, keyword) {
+  const visibleTags = (tool.tags || []).filter((tag) => !['Tbox导入'].includes(tag));
   const tags = [
     `<span class="badge" style="background:${escapeHtml(tool.category_color || '#e5e7eb')};color:#fff">${escapeHtml(tool.category_name)}</span>`,
-    ...(tool.tags || []).map((tag) => `<span class="badge">${escapeHtml(tag)}</span>`)
+    ...visibleTags.map((tag) => `<span class="badge">${escapeHtml(tag)}</span>`)
   ].join('');
   return `
     <a class="tool-card" href="${escapeHtml(tool.url)}" target="_blank" rel="noopener" data-tool-id="${tool.id}" data-keyword="${escapeHtml(keyword)}">

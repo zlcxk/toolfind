@@ -118,12 +118,16 @@ a {
 .searchbar {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 10px;
-  padding: 8px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+  align-items: center;
+  gap: 8px;
+  padding: 7px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 999px;
+  box-shadow:
+    0 22px 55px rgba(15, 23, 42, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(14px);
 }
 
 .searchbar input,
@@ -149,6 +153,9 @@ a {
 .searchbar input {
   border: 0;
   font-size: 17px;
+  min-height: 48px;
+  padding-left: 18px;
+  background: transparent;
 }
 
 .searchbar input:focus,
@@ -168,6 +175,32 @@ a {
   font: inherit;
   font-weight: 700;
   cursor: pointer;
+}
+
+.icon-button {
+  width: 48px;
+  min-width: 48px;
+  height: 48px;
+  min-height: 48px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  padding: 0;
+  box-shadow: 0 10px 24px rgba(29, 78, 216, 0.24);
+}
+
+.icon-button svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.icon-button:hover {
+  transform: translateY(-1px);
 }
 
 .button:hover {
