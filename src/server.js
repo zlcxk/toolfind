@@ -99,6 +99,65 @@ app.get('/api/v1/recommendations', (req, res) => {
   sendOk(res, getRecommendations());
 });
 
+app.get('/api/v1/tools', (req, res) => {
+  const rows = db.prepare(`
+    SELECT
+      tool.id,
+      tool.name,
+      tool.url,
+      tool.description,
+      tool.icon_url,
+      tool.click_count,
+      tool.weight,
+      tool.last_health_status,
+      category.id AS category_id,
+      category.name AS category_name,
+      category.color AS category_color,
+      category.description AS category_description,
+      category.sort_order AS category_sort_order,
+      GROUP_CONCAT(DISTINCT tag.name) AS tags
+    FROM tool
+    JOIN category ON category.id = tool.category_id
+    LEFT JOIN tool_tag ON tool_tag.tool_id = tool.id
+    LEFT JOIN tag ON tag.id = tool_tag.tag_id
+    WHERE tool.status = 1
+    GROUP BY tool.id
+    ORDER BY COALESCE(category.sort_order, 9999) ASC, category.name ASC, tool.weight DESC, tool.click_count DESC, tool.name ASC
+  `).all();
+
+  const groupsByCategory = new Map();
+  for (const tool of rows) {
+    if (!groupsByCategory.has(tool.category_id)) {
+      groupsByCategory.set(tool.category_id, {
+        category_id: tool.category_id,
+        category_name: tool.category_name,
+        category_color: tool.category_color,
+        category_description: tool.category_description,
+        tools: []
+      });
+    }
+    groupsByCategory.get(tool.category_id).tools.push({
+      id: tool.id,
+      name: tool.name,
+      url: tool.url,
+      description: tool.description,
+      icon_url: tool.icon_url,
+      click_count: tool.click_count,
+      weight: tool.weight,
+      last_health_status: tool.last_health_status,
+      category_id: tool.category_id,
+      category_name: tool.category_name,
+      category_color: tool.category_color,
+      tags: tool.tags ? tool.tags.split(',').filter(Boolean) : []
+    });
+  }
+
+  sendOk(res, {
+    total: rows.length,
+    groups: [...groupsByCategory.values()]
+  });
+});
+
 app.use('/api/v1/admin', requireAdmin);
 
 app.get('/api/v1/admin/stats', (req, res) => {
@@ -322,6 +381,10 @@ app.patch('/api/v1/admin/tools/:id/status', (req, res) => {
 app.delete('/api/v1/admin/tools/:id', (req, res) => {
   db.prepare('DELETE FROM tool WHERE id = ?').run(Number(req.params.id));
   sendOk(res);
+});
+
+app.get(['/home', '/tools'], (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 function listenWithFallback(index = 0) {

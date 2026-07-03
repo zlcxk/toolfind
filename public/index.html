@@ -3,51 +3,99 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ToolFind - 各类在线工具检索</title>
-    <meta name="description" content="ToolFind 是一个以搜索为核心的在线工具导航站，帮助你快速查找图片处理、文档转换、开发调试、AI、设计、效率等实用工具。">
+    <title>ToolFind - 在线工具搜索与分类导航</title>
+    <meta name="description" content="ToolFind 是一个以搜索和分类为核心的在线工具导航站，帮助你快速找到图片处理、文档转换、开发调试、AI、设计、效率等实用工具。">
     <meta name="keywords" content="ToolFind,在线工具,工具导航,工具搜索,AI工具,图片处理,PDF工具,开发工具,设计工具">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="ToolFind - 各类在线工具检索">
-    <meta property="og:description" content="输入关键词，快速找到相关在线工具，并按分类清晰展示。">
+    <meta property="og:title" content="ToolFind - 在线工具搜索与分类导航">
+    <meta property="og:description" content="输入关键词快速找到相关在线工具，也可以按分类浏览全部工具。">
     <meta property="og:site_name" content="ToolFind">
-    <meta name="twitter:title" content="ToolFind - 各类在线工具检索">
+    <meta name="twitter:title" content="ToolFind - 在线工具搜索与分类导航">
     <meta name="twitter:description" content="搜索图片处理、文档转换、开发调试、AI、设计和效率工具。">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/styles.css">
   </head>
   <body>
-    <script>
-      if (window.location.search) document.body.dataset.mode = 'results';
-    </script>
+    <header class="site-header">
+      <div class="shell header-inner">
+        <a class="logo wordmark" href="/">ToolFind</a>
+        <nav class="nav-links" aria-label="主导航">
+          <a href="/" data-nav-home>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M10 20v-6h4v6"></path></svg>
+            首页
+          </a>
+          <a href="/tools" data-nav-tools>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect><rect x="14" y="14" width="7" height="7" rx="1.5"></rect></svg>
+            工具分类
+          </a>
+        </nav>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="切换主题" title="切换主题">
+          <svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
+          <svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a7 7 0 1 0 11 11Z"></path></svg>
+        </button>
+      </div>
+    </header>
 
-    <main class="home" id="home-view">
-      <section class="hero shell">
-        <h1 class="brand wordmark">ToolFind</h1>
-        <p class="subtitle">输入需求，直接找到最相关的在线工具。</p>
-        <form class="searchbar" data-search-form>
-          <input data-search-input type="search" autocomplete="off" placeholder="搜索：压缩图片、JSON格式化、颜色提取...">
-          <button class="button icon-button" type="submit" aria-label="搜索">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="11" cy="11" r="7"></circle>
-              <path d="m16.5 16.5 4 4"></path>
-            </svg>
-          </button>
-        </form>
-        <div class="chips" data-hot></div>
+    <main id="home-view" class="page-view">
+      <section class="home-hero shell">
+        <div class="hero-main">
+          <div class="hero-content">
+            <div class="hero-copy">
+              <p class="eyebrow"><span></span>更快找到可用工具</p>
+              <h1>ToolFind</h1>
+              <p class="subtitle">输入需求，直接找到最相关的在线工具；也可以进入 TOOLS 按分类浏览完整工具库。</p>
+            </div>
+            <form class="searchbar hero-search" data-search-form>
+              <input data-search-input type="search" autocomplete="off" placeholder="搜索：压缩图片、JSON格式化、PDF压缩、配色、正则...">
+              <button class="button icon-button" type="submit" aria-label="搜索">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="11" cy="11" r="7"></circle>
+                  <path d="m16.5 16.5 4 4"></path>
+                </svg>
+              </button>
+            </form>
+            <div class="quick-row">
+              <div class="chips" data-hot></div>
+              <a class="text-link" href="/tools">查看全部分类 <span aria-hidden="true">→</span></a>
+            </div>
+          </div>
+          <div class="hero-visual" aria-hidden="true">
+            <div class="visual-window">
+              <div class="window-top"><span></span><span></span><span></span></div>
+              <div class="visual-search"><span></span><i></i></div>
+              <div class="visual-body">
+                <div class="visual-list">
+                  <span></span>
+                  <p><i></i><b></b></p>
+                  <p><i></i><b></b></p>
+                  <p><i></i><b></b></p>
+                </div>
+                <div class="visual-lens">
+                  <span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <section class="logo-strip" aria-label="热门工具">
+          <div class="section-heading">
+            <h2><span aria-hidden="true">🔥</span> 热门工具</h2>
+          </div>
+          <div class="logo-marquee" data-hot-tools></div>
+        </section>
       </section>
-      <footer class="site-footer">
-        <p>© 2026 ToolFind. All rights reserved.</p>
-        <p>本站仅提供在线工具导航与搜索，第三方工具服务由其运营方负责。</p>
-        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">浙ICP备2025148305号-1</a>
-      </footer>
     </main>
 
-    <main id="results-view" class="hidden">
-      <header class="topbar">
-        <div class="topbar-inner shell">
-          <a class="logo wordmark" href="/">ToolFind</a>
-          <form class="searchbar" data-search-form>
-            <input data-search-input type="search" autocomplete="off" placeholder="搜索工具">
+    <main id="tools-view" class="page-view hidden">
+      <section class="shell page-section tools-page">
+        <div class="tools-heading">
+          <div>
+            <p class="eyebrow">TOOLS</p>
+            <h1>全部工具分类</h1>
+            <p class="tools-subtitle">精选优质在线工具，提升工作效率，让创意更轻松实现</p>
+          </div>
+          <form class="searchbar compact-search" data-search-form>
+            <input data-search-input type="search" autocomplete="off" placeholder="搜索工具、关键词...">
             <button class="button icon-button" type="submit" aria-label="搜索">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="11" cy="11" r="7"></circle>
@@ -56,24 +104,41 @@
             </button>
           </form>
         </div>
-      </header>
-      <section class="shell">
+        <div class="category-tabs" data-category-tabs></div>
+        <div class="tools-current">
+          <div>
+            <h2 data-tools-title>全部</h2>
+            <p data-tools-description>全部已收录工具</p>
+          </div>
+          <span data-tools-count></span>
+        </div>
+        <div data-tools-groups></div>
+        <div class="pagination" data-tools-pagination></div>
+      </section>
+    </main>
+
+    <main id="results-view" class="page-view hidden">
+      <section class="shell page-section">
+        <form class="searchbar results-search" data-search-form>
+          <input data-search-input type="search" autocomplete="off" placeholder="搜索工具">
+          <button class="button icon-button" type="submit" aria-label="搜索">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"></circle>
+              <path d="m16.5 16.5 4 4"></path>
+            </svg>
+          </button>
+        </form>
         <p class="results-meta" data-meta></p>
         <div data-results></div>
       </section>
-      <footer class="site-footer">
-        <p>© 2026 ToolFind. All rights reserved.</p>
-        <p>本站仅提供在线工具导航与搜索，第三方工具服务由其运营方负责。</p>
-        <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">浙ICP备2025148305号-1</a>
-      </footer>
     </main>
 
-    <script>
-      if (window.location.search) {
-        document.getElementById('home-view').classList.add('hidden');
-        document.getElementById('results-view').classList.remove('hidden');
-      }
-    </script>
+    <footer class="site-footer">
+      <p>© 2026 ToolFind. All rights reserved.</p>
+      <p>本站仅提供在线工具导航与搜索，第三方工具服务由其运营方负责。</p>
+      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener">浙ICP备2025148305号-1</a>
+    </footer>
+
     <script src="/app.js"></script>
   </body>
 </html>

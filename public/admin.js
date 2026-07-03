@@ -75,6 +75,10 @@ async function loadCategories() {
 }
 
 function healthLabel(item) {
+  if (item.last_health_status === 'overseas') {
+    const title = item.last_health_error ? ` title="${html(item.last_health_error)}"` : '';
+    return `<span class="badge" style="background:#dbeafe;color:#1d4ed8"${title}>海外</span>`;
+  }
   if (item.last_health_status === 'ok') {
     return '<span class="badge" style="background:#dcfce7;color:#166534">正常</span>';
   }

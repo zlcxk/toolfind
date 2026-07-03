@@ -23,6 +23,11 @@ async function requestWithTimeout(url, method, timeoutMs = 9000) {
   }
 }
 
+function networkFailureMessage(error) {
+  if (error.name === 'AbortError') return '请求超时，可能为海外站点';
+  return error.message || '网络不可达，可能为海外站点';
+}
+
 async function checkUrl(url) {
   try {
     let response = await requestWithTimeout(url, 'HEAD');
@@ -41,7 +46,7 @@ async function checkUrl(url) {
       }
       return { ok: false, message: `HTTP ${response.status}` };
     } catch (retryError) {
-      return { ok: false, message: retryError.name === 'AbortError' ? '请求超时' : retryError.message };
+      return { ok: false, overseas: true, message: networkFailureMessage(retryError) };
     }
   }
 }
@@ -58,6 +63,7 @@ async function runHealthCheck({ includeInactive = false } = {}) {
     total: tools.length,
     ok: 0,
     down: 0,
+    overseas: 0,
     checked_at: new Date().toISOString()
   };
 
@@ -76,6 +82,9 @@ async function runHealthCheck({ includeInactive = false } = {}) {
     if (health.ok) {
       result.ok += 1;
       update.run(tool.status, 'ok', health.message, tool.id);
+    } else if (health.overseas) {
+      result.overseas += 1;
+      update.run(tool.status, 'overseas', health.message.slice(0, 240), tool.id);
     } else {
       result.down += 1;
       update.run(0, 'down', health.message.slice(0, 240), tool.id);
@@ -94,7 +103,7 @@ function scheduleHealthCheck() {
   if (boolEnv(process.env.HEALTH_CHECK_ON_START, false)) {
     setTimeout(() => {
       runHealthCheck().then((result) => {
-        console.log(`Health check finished: ${result.ok} ok, ${result.down} down`);
+        console.log(`Health check finished: ${result.ok} ok, ${result.down} down, ${result.overseas} overseas`);
       }).catch((error) => {
         console.error(`Health check failed: ${error.message}`);
       });
@@ -103,7 +112,7 @@ function scheduleHealthCheck() {
 
   setInterval(() => {
     runHealthCheck().then((result) => {
-      console.log(`Health check finished: ${result.ok} ok, ${result.down} down`);
+      console.log(`Health check finished: ${result.ok} ok, ${result.down} down, ${result.overseas} overseas`);
     }).catch((error) => {
       console.error(`Health check failed: ${error.message}`);
     });
