@@ -2,6 +2,8 @@
 
 轻量级智能工具搜索引擎，基于 Express + SQLite FTS5。
 
+示例站点： https://toolfind.opxk.space
+
 ## 本地运行
 
 ```bash
