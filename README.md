@@ -40,21 +40,6 @@ npm run icons:fetch
 npm run icons:fetch:force
 ```
 
-## 导入 Tbox 工具
-
-导入脚本只追加数据，按工具 URL 或名称去重，不会清空现有数据库。
-
-```bash
-npm run import:tboxn:dry
-npm run import:tboxn
-```
-
-小范围测试：
-
-```bash
-node scripts/import-tboxn.js --dry-run --limit=20
-```
-
 ## 数据维护
 
 工具去重和分类维护规则：
